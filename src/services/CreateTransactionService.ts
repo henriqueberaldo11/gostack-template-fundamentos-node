@@ -14,7 +14,24 @@ class CreateTransactionService {
   }
 
   public execute({ title, value, type }: RequestDTO): Transaction {
-    // TODO
+    const { total } = this.transactionsRepository.getBalance();
+
+    if (!['income', 'outcome'].includes(type)) {
+      throw new Error('Invalid type attribute');
+    }
+
+    if (type === 'outcome' && total < value) {
+      throw new Error(
+        'Exit not allowed, informed value greater than the total available',
+      );
+    }
+
+    const transaction = this.transactionsRepository.create({
+      title,
+      type,
+      value,
+    });
+    return transaction;
   }
 }
 
